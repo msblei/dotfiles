@@ -1,0 +1,8 @@
+[user]
+	name = msblei
+[init]
+	defaultBranch = main
+# Machine-local settings (email, signing keys, work identities) live in
+# ~/.gitconfig.local which is not tracked. See templates/gitconfig.local.example
+[include]
+	path = ~/.gitconfig.local

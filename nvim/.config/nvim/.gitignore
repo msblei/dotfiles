@@ -1,0 +1,6 @@
+# nvim-pack-lock.json IS tracked: it pins plugin revisions for reproducible installs.
+tags
+test.sh
+.luarc.json
+nvim
+spell/

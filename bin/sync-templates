@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Refresh templates/ from the live, app-managed config files.
+# ~/.claude/settings.json and ~/.codex/config.toml are NOT symlinked because the
+# apps rewrite them with machine-specific / private content. Run this after you
+# change hooks, model, theme, etc. and commit the result.
+set -euo pipefail
+DIR="$(cd "$(dirname "$0")/.." && pwd)"
+
+# Claude Code: everything except the autoMode profile (project-specific, private)
+jq 'del(.autoMode)' "$HOME/.claude/settings.json" > "$DIR/templates/claude-settings.json"
+
+# Codex: only the hand-written head; everything from the first generated
+# [marketplaces.*] table on is machine-bound (absolute paths, trusted hashes).
+# [projects.*] (per-path trust state) and [tui.model_availability_nux] are app state too.
+awk '
+  /^\[marketplaces\./ { exit }
+  /^\[/ { skip = ($0 ~ /^\[projects\./ || $0 ~ /^\[tui\.model_availability_nux\]/) }
+  !skip { print }
+' "$HOME/.codex/config.toml" | cat -s | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' > "$DIR/templates/codex-config.toml"
+
+echo "templates refreshed:"
+git -C "$DIR" status --short templates/
